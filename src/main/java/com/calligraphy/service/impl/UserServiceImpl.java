@@ -17,24 +17,17 @@ import java.util.Map;
 //为什么登录成功返回 Map<String, Object>
 //因为登录返回的数据通常是组合数据，不只是一个 token。
 //例如前端常常需要同时拿到：
-//
 //token
-//
 //userId
-//
 //username
-//
 //nickname
-//
 //avatar
-//
 //所以当前用 Map 比较方便。
 //如果想进一步规范，也可以单独建 LoginVO
 
 
 
 //当前阶段
-//
 //先用明文密码，是为了把主流程跑通。
 @Service
 public class UserServiceImpl implements UserService {
