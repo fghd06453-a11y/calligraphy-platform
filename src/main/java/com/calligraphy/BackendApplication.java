@@ -1,4 +1,4 @@
-package com.calligraphy.backend;
+package com.calligraphy;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
