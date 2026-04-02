@@ -9,21 +9,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
-    public Result<Void> handleRuntimeException(RuntimeException e) {
+    public Result<String> handleRuntime(RuntimeException e) {
         return Result.fail(e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<Void> handleValidationException(MethodArgumentNotValidException e) {
-        String message = e.getBindingResult().getFieldError() != null
+    public Result<String> handleValid(MethodArgumentNotValidException e) {
+        String msg = e.getBindingResult().getFieldError() != null
                 ? e.getBindingResult().getFieldError().getDefaultMessage()
                 : "参数校验失败";
-        return Result.fail(message);
+        return Result.fail(msg);
     }
 
     @ExceptionHandler(Exception.class)
-    public Result<Void> handleException(Exception e) {
-        return Result.fail("服务器内部错误");
+    public Result<String> handleException(Exception e) {
+        return Result.fail("服务器内部异常：" + e.getMessage());
     }
 }
 

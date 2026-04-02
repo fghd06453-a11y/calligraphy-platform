@@ -44,4 +44,13 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public boolean isTokenValid(String token) {
+        return false;
+    }
+
+    public Long getUserId(String token) {
+        int i = 0;
+        return long i;
+    }
 }
