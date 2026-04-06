@@ -19,9 +19,28 @@ public class LikeController {
 
     @PostMapping("/toggle/{contentId}")
     public Result<Boolean> toggle(@PathVariable Long contentId,
-                                  @RequestHeader("Authorization") String token) {
-        if (!jwtUtil.isTokenValid(token)) return Result.fail("请先登录");
-        Long userId = jwtUtil.getUserId(token);
+                                  @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = getCurrentUserId(authorization);
+        if (userId == null) {
+            return Result.fail("请先登录");
+        }
         return Result.success(likeService.toggleLike(contentId, userId));
+    }
+
+    private Long getCurrentUserId(String authorization) {
+        if (authorization == null || authorization.isBlank()) {
+            return null;
+        }
+
+        String token = authorization;
+        if (authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7);
+        }
+
+        if (!jwtUtil.isTokenValid(token)) {
+            return null;
+        }
+
+        return jwtUtil.getUserId(token);
     }
 }

@@ -24,9 +24,8 @@ public class CommentController {
 
     @PostMapping("/publish")
     public Result<Void> publish(@Valid @RequestBody CommentDTO dto,
-                                @RequestHeader("Authorization") String token) {
-        if (!jwtUtil.isTokenValid(token)) return Result.fail("请先登录");
-        Long userId = jwtUtil.getUserId(token);
+                                @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = getCurrentUserId(authorization);
         commentService.publish(dto, userId);
         return Result.success();
     }
@@ -38,10 +37,26 @@ public class CommentController {
 
     @DeleteMapping("/delete/{id}")
     public Result<Void> delete(@PathVariable Long id,
-                               @RequestHeader("Authorization") String token) {
-        if (!jwtUtil.isTokenValid(token)) return Result.fail("请先登录");
-        Long userId = jwtUtil.getUserId(token);
+                               @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = getCurrentUserId(authorization);
         commentService.delete(id, userId);
         return Result.success();
+    }
+
+    private Long getCurrentUserId(String authorization) {
+        if (authorization == null || authorization.isBlank()) {
+            throw new RuntimeException("请先登录");
+        }
+
+        String token = authorization;
+        if (authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7);
+        }
+
+        if (!jwtUtil.isTokenValid(token)) {
+            throw new RuntimeException("登录已失效，请重新登录");
+        }
+
+        return jwtUtil.getUserId(token);
     }
 }

@@ -21,17 +21,30 @@ public class ContentController {
         this.jwtUtil = jwtUtil;
     }
 
-    private Long getCurrentUserId(String token) {
-        if (token == null || token.isBlank()) return null;
-        if (!jwtUtil.isTokenValid(token)) return null;
+    private Long getCurrentUserId(String authorization) {
+        if (authorization == null || authorization.isBlank()) {
+            return null;
+        }
+
+        String token = authorization;
+        if (authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7);
+        }
+
+        if (!jwtUtil.isTokenValid(token)) {
+            return null;
+        }
+
         return jwtUtil.getUserId(token);
     }
 
     @PostMapping("/publish")
     public Result<Void> publish(@Valid @RequestBody ContentDTO dto,
-                                @RequestHeader("Authorization") String token) {
-        Long userId = getCurrentUserId(token);
-        if (userId == null) return Result.fail("请先登录");
+                                @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = getCurrentUserId(authorization);
+        if (userId == null) {
+            return Result.fail("请先登录");
+        }
         contentService.publish(dto, userId);
         return Result.success();
     }
@@ -41,23 +54,25 @@ public class ContentController {
                                               @RequestParam(defaultValue = "10") Integer pageSize,
                                               @RequestParam(required = false) String type,
                                               @RequestParam(required = false) Long categoryId,
-                                              @RequestHeader(value = "Authorization", required = false) String token) {
-        Long currentUserId = getCurrentUserId(token);
+                                              @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long currentUserId = getCurrentUserId(authorization);
         return Result.success(contentService.page(pageNum, pageSize, type, categoryId, currentUserId));
     }
 
     @GetMapping("/detail/{id}")
     public Result<ContentVO> detail(@PathVariable Long id,
-                                    @RequestHeader(value = "Authorization", required = false) String token) {
-        Long currentUserId = getCurrentUserId(token);
+                                    @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long currentUserId = getCurrentUserId(authorization);
         return Result.success(contentService.detail(id, currentUserId));
     }
 
     @DeleteMapping("/delete/{id}")
     public Result<Void> delete(@PathVariable Long id,
-                               @RequestHeader("Authorization") String token) {
-        Long userId = getCurrentUserId(token);
-        if (userId == null) return Result.fail("请先登录");
+                               @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = getCurrentUserId(authorization);
+        if (userId == null) {
+            return Result.fail("请先登录");
+        }
         contentService.delete(id, userId);
         return Result.success();
     }
