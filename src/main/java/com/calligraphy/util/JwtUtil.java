@@ -16,7 +16,8 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    private static SecretKey secretKey;
+    private SecretKey secretKey;
+    private Long expirationTime;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -26,7 +27,8 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expirationTime = expiration;
     }
 
     public String createToken(Long userId, String username) {
@@ -35,7 +37,7 @@ public class JwtUtil {
         claims.put("username", username);
 
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + expiration);
+        Date expireDate = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
                 .claims(claims)
