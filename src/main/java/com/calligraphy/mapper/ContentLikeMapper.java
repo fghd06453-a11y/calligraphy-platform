@@ -1,14 +1,9 @@
 package com.calligraphy.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.calligraphy.entity.ContentLike;
+import org.apache.ibatis.annotations.Mapper;
 
-public interface ContentLikeMapper {
-    void deleteById(Long id);
-
-    void insert(ContentLike like);
-
-    ContentLike selectOne(LambdaQueryWrapper<ContentLike> wrapper);
-
-    int selectCount(LambdaQueryWrapper<ContentLike> wrapper);
+@Mapper
+public interface ContentLikeMapper extends BaseMapper<ContentLike> {
 }

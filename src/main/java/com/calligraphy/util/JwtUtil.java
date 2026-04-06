@@ -3,11 +3,11 @@ package com.calligraphy.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,8 +16,6 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    private static String SECRET;
-    private static Long EXPIRATION;
     private static SecretKey secretKey;
 
     @Value("${jwt.secret}")
@@ -28,9 +26,7 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        SECRET = secret;
-        EXPIRATION = expiration;
-        secretKey = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createToken(Long userId, String username) {
@@ -39,7 +35,7 @@ public class JwtUtil {
         claims.put("username", username);
 
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + EXPIRATION);
+        Date expireDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
                 .claims(claims)
