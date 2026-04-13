@@ -5,7 +5,7 @@ public class RegisterDTO {
     private String username;
     private String password;
     private String nickname;
-    private String avatar; // ✅ 加这一行
+    private String avatar;
 
     // getter / setter
 
@@ -33,7 +33,7 @@ public class RegisterDTO {
         this.nickname = nickname;
     }
 
-    public String getAvatar() {   // ✅ 必须有
+    public String getAvatar() {
         return avatar;
     }
 

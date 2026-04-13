@@ -4,7 +4,7 @@ import com.calligraphy.common.Result;
 import com.calligraphy.dto.CommentDTO;
 import com.calligraphy.dto.CommentVO;
 import com.calligraphy.service.CommentService;
-import com.calligraphy.util.JwtUtil;
+import com.calligraphy.util.LoginUserHelper;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,17 +15,20 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final JwtUtil jwtUtil;
+    private final LoginUserHelper loginUserHelper;
 
-    public CommentController(CommentService commentService, JwtUtil jwtUtil) {
+    public CommentController(CommentService commentService, LoginUserHelper loginUserHelper) {
         this.commentService = commentService;
-        this.jwtUtil = jwtUtil;
+        this.loginUserHelper = loginUserHelper;
     }
 
     @PostMapping("/publish")
     public Result<Void> publish(@Valid @RequestBody CommentDTO dto,
                                 @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = getCurrentUserId(authorization);
+        Long userId = loginUserHelper.getCurrentUserId(authorization);
+        if (userId == null) {
+            return Result.fail("请先登录");
+        }
         commentService.publish(dto, userId);
         return Result.success();
     }
@@ -38,25 +41,11 @@ public class CommentController {
     @DeleteMapping("/delete/{id}")
     public Result<Void> delete(@PathVariable Long id,
                                @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = getCurrentUserId(authorization);
+        Long userId = loginUserHelper.getCurrentUserId(authorization);
+        if (userId == null) {
+            return Result.fail("请先登录");
+        }
         commentService.delete(id, userId);
         return Result.success();
-    }
-
-    private Long getCurrentUserId(String authorization) {
-        if (authorization == null || authorization.isBlank()) {
-            throw new RuntimeException("请先登录");
-        }
-
-        String token = authorization;
-        if (authorization.startsWith("Bearer ")) {
-            token = authorization.substring(7);
-        }
-
-        if (!jwtUtil.isTokenValid(token)) {
-            throw new RuntimeException("登录已失效，请重新登录");
-        }
-
-        return jwtUtil.getUserId(token);
     }
 }
