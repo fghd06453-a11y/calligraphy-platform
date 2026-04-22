@@ -48,7 +48,6 @@ public class GlobalExceptionHandler {
         return Result.fail(ResultCodeEnum.SYSTEM_ERROR.getCode(), ResultCodeEnum.SYSTEM_ERROR.getMessage());
     }
 }
-
 //异常处理返回数据格式：{
 //  "code": 500,
 //  "message": "用户名已存在",

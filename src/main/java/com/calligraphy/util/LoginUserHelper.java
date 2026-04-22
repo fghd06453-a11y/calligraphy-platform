@@ -28,7 +28,11 @@ public class LoginUserHelper {
         return jwtUtil.getUserId(token);
     }
 
-    public boolean isLogin(String authorization) {
-        return getCurrentUserId(authorization) != null;
+    public Long getRequiredCurrentUserId() {
+        Long userId = LoginUserContext.getCurrentUserId();
+        if (userId == null) {
+            throw new RuntimeException("未登录或登录已过期");
+        }
+        return userId;
     }
 }

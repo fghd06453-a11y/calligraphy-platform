@@ -13,6 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -52,10 +55,6 @@ public class UserServiceImpl implements UserService {
         user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
 
-        // 如果你的 User 实体里还有昵称、头像等字段，可在这里继续补默认值
-        // 例如：
-        // user.setNickname(registerDTO.getUsername());
-
         int rows = userMapper.insert(user);
         if (rows <= 0) {
             throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR.getCode(), "注册失败");
@@ -63,7 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(LoginDTO loginDTO) {
+    public Map<String, Object> login(LoginDTO loginDTO) {
         if (loginDTO == null) {
             throw new BusinessException(ResultCodeEnum.PARAM_ERROR);
         }
@@ -86,6 +85,12 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ResultCodeEnum.PASSWORD_ERROR);
         }
 
-        return jwtUtil.createToken(user.getId());
+        String token = jwtUtil.createToken(user.getId(), user.getUsername());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", token);
+        result.put("userId", user.getId());
+        result.put("username", user.getUsername());
+        return result;
     }
 }

@@ -1,21 +1,21 @@
 package com.calligraphy.util;
 
-import com.calligraphy.exception.UnauthorizedException;
-import org.springframework.stereotype.Component;
+public final class LoginUserContext {
 
-@Component
-public class LoginUserHelper {
+    private static final ThreadLocal<Long> CURRENT_USER_ID = new ThreadLocal<>();
 
-    public Long getCurrentUserId() {
-        return LoginUserContext.getCurrentUserId();
+    private LoginUserContext() {
     }
 
-    public Long getRequiredCurrentUserId() {
-        Long userId = LoginUserContext.getCurrentUserId();
-        if (userId == null) {
-            throw new UnauthorizedException("未登录或登录已过期");
-        }
-        return userId;
+    public static void setCurrentUserId(Long userId) {
+        CURRENT_USER_ID.set(userId);
     }
-}
+
+    public static Long getCurrentUserId() {
+        return CURRENT_USER_ID.get();
+    }
+
+    public static void clear() {
+        CURRENT_USER_ID.remove();
+    }
 }

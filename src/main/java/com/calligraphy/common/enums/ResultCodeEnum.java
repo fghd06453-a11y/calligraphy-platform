@@ -1,12 +1,8 @@
 package com.calligraphy.common.enums;
 
-/**
- * 统一返回状态码
- */
 public enum ResultCodeEnum {
 
     SUCCESS(200, "成功"),
-
     PARAM_ERROR(400, "参数错误"),
     UNAUTHORIZED(401, "未登录或登录已过期"),
     FORBIDDEN(403, "无权限"),

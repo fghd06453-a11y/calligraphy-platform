@@ -39,12 +39,11 @@ public class JwtInterceptor implements HandlerInterceptor {
             throw new UnauthorizedException("token 不能为空");
         }
 
-        boolean valid = jwtUtil.validateToken(token);
-        if (!valid) {
+        if (!jwtUtil.isTokenValid(token)) {
             throw new UnauthorizedException("token 无效或已过期");
         }
 
-        Long userId = jwtUtil.getUserIdFromToken(token);
+        Long userId = jwtUtil.getUserId(token);
         if (userId == null) {
             throw new UnauthorizedException("无法解析当前登录用户");
         }
