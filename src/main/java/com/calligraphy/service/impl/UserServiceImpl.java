@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
-
+        user.setNickname(registerDTO.getNickname());
         int rows = userMapper.insert(user);
         if (rows <= 0) {
             throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR.getCode(), "注册失败");
