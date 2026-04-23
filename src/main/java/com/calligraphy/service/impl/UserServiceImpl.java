@@ -55,6 +55,11 @@ public class UserServiceImpl implements UserService {
         user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setNickname(registerDTO.getNickname());
+
+        if (StringUtils.hasText(registerDTO.getAvatar())) {
+            user.setAvatar(registerDTO.getAvatar());
+        }
+
         int rows = userMapper.insert(user);
         if (rows <= 0) {
             throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR.getCode(), "注册失败");
@@ -91,6 +96,8 @@ public class UserServiceImpl implements UserService {
         result.put("token", token);
         result.put("userId", user.getId());
         result.put("username", user.getUsername());
+        result.put("nickname", user.getNickname());
+        result.put("avatar", user.getAvatar());
         return result;
     }
 }

@@ -18,12 +18,8 @@ public class LikeController {
     }
 
     @PostMapping("/toggle/{contentId}")
-    public Result<Boolean> toggle(@PathVariable Long contentId,
-                                  @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = loginUserHelper.getCurrentUserId(authorization);
-        if (userId == null) {
-            return Result.fail("请先登录");
-        }
+    public Result<Boolean> toggle(@PathVariable Long contentId) {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
         return Result.success(likeService.toggleLike(contentId, userId));
     }
 }

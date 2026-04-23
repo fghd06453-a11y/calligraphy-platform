@@ -22,12 +22,8 @@ public class ContentController {
     }
 
     @PostMapping("/publish")
-    public Result<Void> publish(@Valid @RequestBody ContentDTO dto,
-                                @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = loginUserHelper.getCurrentUserId(authorization);
-        if (userId == null) {
-            return Result.fail("请先登录");
-        }
+    public Result<Void> publish(@Valid @RequestBody ContentDTO dto) {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
         contentService.publish(dto, userId);
         return Result.success();
     }
@@ -36,26 +32,20 @@ public class ContentController {
     public Result<PageResult<ContentVO>> page(@RequestParam(defaultValue = "1") Integer pageNum,
                                               @RequestParam(defaultValue = "10") Integer pageSize,
                                               @RequestParam(required = false) String type,
-                                              @RequestParam(required = false) Long categoryId,
-                                              @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long currentUserId = loginUserHelper.getCurrentUserId(authorization);
+                                              @RequestParam(required = false) Long categoryId) {
+        Long currentUserId = loginUserHelper.getCurrentUserId();
         return Result.success(contentService.page(pageNum, pageSize, type, categoryId, currentUserId));
     }
 
     @GetMapping("/detail/{id}")
-    public Result<ContentVO> detail(@PathVariable Long id,
-                                    @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long currentUserId = loginUserHelper.getCurrentUserId(authorization);
+    public Result<ContentVO> detail(@PathVariable Long id) {
+        Long currentUserId = loginUserHelper.getCurrentUserId();
         return Result.success(contentService.detail(id, currentUserId));
     }
 
     @DeleteMapping("/delete/{id}")
-    public Result<Void> delete(@PathVariable Long id,
-                               @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = loginUserHelper.getCurrentUserId(authorization);
-        if (userId == null) {
-            return Result.fail("请先登录");
-        }
+    public Result<Void> delete(@PathVariable Long id) {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
         contentService.delete(id, userId);
         return Result.success();
     }

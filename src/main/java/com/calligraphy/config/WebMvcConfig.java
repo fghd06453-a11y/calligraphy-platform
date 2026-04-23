@@ -20,7 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/user/login",
                         "/user/register",
-                        "/category/list",
+                        "/api/category/list",
                         "/error",
                         "/favicon.ico",
                         "/doc.html",

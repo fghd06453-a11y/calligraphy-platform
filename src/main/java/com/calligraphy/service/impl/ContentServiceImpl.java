@@ -1,5 +1,7 @@
 package com.calligraphy.service.impl;
 
+import com.calligraphy.common.enums.ResultCodeEnum;
+import com.calligraphy.exception.BusinessException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.calligraphy.common.PageResult;
@@ -75,7 +77,7 @@ public class ContentServiceImpl implements ContentService {
     public ContentVO detail(Long id, Long currentUserId) {
         Content content = contentMapper.selectById(id);
         if (content == null) {
-            throw new RuntimeException("内容不存在");
+            throw new BusinessException(ResultCodeEnum.CONTENT_NOT_FOUND);
         }
         int currentViewCount = content.getViewCount() == null ? 0 : content.getViewCount();
         content.setViewCount(currentViewCount + 1);
@@ -88,10 +90,10 @@ public class ContentServiceImpl implements ContentService {
     public void delete(Long id, Long userId) {
         Content content = contentMapper.selectById(id);
         if (content == null) {
-            throw new RuntimeException("内容不存在");
+            throw new BusinessException(ResultCodeEnum.CONTENT_NOT_FOUND);
         }
         if (!content.getUserId().equals(userId)) {
-            throw new RuntimeException("无权删除");
+            throw new BusinessException(ResultCodeEnum.NO_PERMISSION);
         }
         contentMapper.deleteById(id);
     }

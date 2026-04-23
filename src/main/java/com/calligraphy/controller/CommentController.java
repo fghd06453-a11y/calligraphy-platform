@@ -23,12 +23,8 @@ public class CommentController {
     }
 
     @PostMapping("/publish")
-    public Result<Void> publish(@Valid @RequestBody CommentDTO dto,
-                                @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = loginUserHelper.getCurrentUserId(authorization);
-        if (userId == null) {
-            return Result.fail("请先登录");
-        }
+    public Result<Void> publish(@Valid @RequestBody CommentDTO dto) {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
         commentService.publish(dto, userId);
         return Result.success();
     }
@@ -39,12 +35,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public Result<Void> delete(@PathVariable Long id,
-                               @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = loginUserHelper.getCurrentUserId(authorization);
-        if (userId == null) {
-            return Result.fail("请先登录");
-        }
+    public Result<Void> delete(@PathVariable Long id) {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
         commentService.delete(id, userId);
         return Result.success();
     }

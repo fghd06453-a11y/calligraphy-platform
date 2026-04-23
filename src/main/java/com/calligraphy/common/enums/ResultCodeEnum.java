@@ -13,6 +13,7 @@ public enum ResultCodeEnum {
     PASSWORD_ERROR(1003, "密码错误"),
 
     CONTENT_NOT_FOUND(2001, "内容不存在"),
+    NO_PERMISSION(2002, "无权限操作"),
 
     SYSTEM_ERROR(500, "系统异常");
 
