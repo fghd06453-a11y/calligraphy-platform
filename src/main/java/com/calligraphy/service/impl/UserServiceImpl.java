@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.calligraphy.common.enums.ResultCodeEnum;
 import com.calligraphy.dto.LoginDTO;
 import com.calligraphy.dto.RegisterDTO;
+import com.calligraphy.dto.UserUpdateDTO;
 import com.calligraphy.entity.User;
 import com.calligraphy.exception.BusinessException;
 import com.calligraphy.mapper.UserMapper;
@@ -29,6 +30,25 @@ public class UserServiceImpl implements UserService {
         this.userMapper = userMapper;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void updateProfile(UserUpdateDTO dto, Long userId) {
+
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+
+        if (dto.getNickname() != null) {
+            user.setNickname(dto.getNickname());
+        }
+
+        if (dto.getAvatar() != null) {
+            user.setAvatar(dto.getAvatar());
+        }
+
+        userMapper.updateById(user);
     }
 
     @Override

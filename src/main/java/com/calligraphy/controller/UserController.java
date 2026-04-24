@@ -3,7 +3,9 @@ package com.calligraphy.controller;
 import com.calligraphy.common.Result;
 import com.calligraphy.dto.LoginDTO;
 import com.calligraphy.dto.RegisterDTO;
+import com.calligraphy.dto.UserUpdateDTO;
 import com.calligraphy.service.UserService;
+import com.calligraphy.util.LoginUserHelper;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,4 +33,13 @@ public class UserController {
         Map<String, Object> data = userService.login(loginDTO);
         return Result.success(data);
     }
+
+    @PostMapping("/update")
+    public Result<Void> update(@RequestBody UserUpdateDTO dto) {
+        LoginUserHelper loginUserHelper = new LoginUserHelper();
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
+        userService.updateProfile(dto, userId);
+        return Result.success();
+    }
+
 }
