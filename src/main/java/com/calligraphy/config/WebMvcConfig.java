@@ -2,6 +2,7 @@ package com.calligraphy.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -21,11 +22,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/user/login",
                         "/user/register",
                         "/api/category/list",
+                        "/api/upload",
+                        "/upload/**",
                         "/error",
                         "/favicon.ico",
                         "/doc.html",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"
                 );
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/upload/**")
+                .addResourceLocations("file:D:/upload/");
     }
 }
