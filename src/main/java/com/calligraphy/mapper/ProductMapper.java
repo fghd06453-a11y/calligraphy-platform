@@ -1,9 +1,9 @@
 package com.calligraphy.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.calligraphy.entity.Order;
+import com.calligraphy.entity.Product;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface OrderMapper extends BaseMapper<Order> {
+public interface ProductMapper extends BaseMapper<Product> {
 }

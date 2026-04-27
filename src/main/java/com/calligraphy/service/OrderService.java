@@ -1,23 +1,12 @@
-@Service
-public class OrderService {
+package com.calligraphy.service;
 
-    @Autowired
-    private OrderMapper orderMapper;
+import com.calligraphy.entity.Order;
 
-    public void create(Order order) {
-        order.setStatus("未支付");
-        orderMapper.insert(order);
-    }
+import java.util.List;
 
-    public List<Order> myOrders(Long userId) {
-        return orderMapper.listByUser(userId);
-    }
-
-    public List<Order> all() {
-        return orderMapper.listAll();
-    }
-
-    public void update(Order order) {
-        orderMapper.updateStatus(order);
-    }
+public interface OrderService {
+    void create(Long userId, Long productId);
+    List<Order> myOrders(Long userId);
+    List<Order> list();
+    void update(Order order);
 }
