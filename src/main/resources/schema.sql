@@ -1,61 +1,28 @@
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS product;
-DROP TABLE IF EXISTS comment;
-DROP TABLE IF EXISTS content_like;
-DROP TABLE IF EXISTS content;
-DROP TABLE IF EXISTS category;
-DROP TABLE IF EXISTS user;
+SET @sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'user'
+       AND COLUMN_NAME = 'role') = 0,
+    'ALTER TABLE user ADD COLUMN role VARCHAR(20) DEFAULT ''user'' COMMENT ''角色：admin/user''',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
-CREATE TABLE user (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
-    password VARCHAR(100) NOT NULL COMMENT '密码',
-    nickname VARCHAR(50) NOT NULL COMMENT '昵称',
-    avatar VARCHAR(255) DEFAULT NULL COMMENT '头像',
-    role VARCHAR(20) DEFAULT 'user' COMMENT '角色：admin/user',
-    status VARCHAR(20) DEFAULT '正常' COMMENT '状态：正常/封禁',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) COMMENT='用户表';
+SET @sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'user'
+       AND COLUMN_NAME = 'status') = 0,
+    'ALTER TABLE user ADD COLUMN status VARCHAR(20) DEFAULT ''正常'' COMMENT ''状态：正常/封禁''',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
-CREATE TABLE category (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    name VARCHAR(50) NOT NULL COMMENT '分类名称',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) COMMENT='分类表';
-
-CREATE TABLE content (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    title VARCHAR(100) NOT NULL COMMENT '标题',
-    content TEXT COMMENT '内容',
-    cover VARCHAR(255) DEFAULT NULL COMMENT '封面',
-    type VARCHAR(20) NOT NULL COMMENT '类型：work/article',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
-    category_id BIGINT NOT NULL COMMENT '分类ID',
-    view_count INT DEFAULT 0 COMMENT '浏览量',
-    like_count INT DEFAULT 0 COMMENT '点赞数',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) COMMENT='内容表';
-
-CREATE TABLE comment (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    content_id BIGINT NOT NULL COMMENT '内容ID',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
-    content VARCHAR(500) NOT NULL COMMENT '评论内容',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) COMMENT='评论表';
-
-CREATE TABLE content_like (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    content_id BIGINT NOT NULL COMMENT '内容ID',
-    user_id BIGINT NOT NULL COMMENT '用户ID',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-) COMMENT='点赞表';
-
-CREATE TABLE product (
+CREATE TABLE IF NOT EXISTS product (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     name VARCHAR(100) NOT NULL COMMENT '商品名称',
     description TEXT COMMENT '商品描述',
@@ -65,7 +32,7 @@ CREATE TABLE product (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) COMMENT='商品表';
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     user_id BIGINT NOT NULL COMMENT '用户ID',
     product_id BIGINT NOT NULL COMMENT '商品ID',
@@ -73,8 +40,3 @@ CREATE TABLE orders (
     status VARCHAR(20) DEFAULT '未支付' COMMENT '订单状态',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) COMMENT='订单表';
-
-INSERT INTO category(name) VALUES ('楷书'),('行书'),('草书'),('隶书'),('篆书');
-
-INSERT INTO user(username, password, nickname, role, status)
-VALUES ('admin', '$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', '管理员', 'admin', '正常');

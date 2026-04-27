@@ -26,7 +26,7 @@ public class OrderServiceImpl implements OrderService {
     public void create(Long userId, Long productId) {
         Product product = productMapper.selectById(productId);
         if (product == null) {
-            throw new BusinessException(500, "商品不存在");
+            throw new BusinessException("商品不存在");
         }
 
         Order order = new Order();
