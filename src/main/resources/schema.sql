@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS comment;
 DROP TABLE IF EXISTS content_like;
 DROP TABLE IF EXISTS content;
@@ -10,6 +12,8 @@ CREATE TABLE user (
     password VARCHAR(100) NOT NULL COMMENT '密码',
     nickname VARCHAR(50) NOT NULL COMMENT '昵称',
     avatar VARCHAR(255) DEFAULT NULL COMMENT '头像',
+    role VARCHAR(20) DEFAULT 'user' COMMENT '角色：admin/user',
+    status VARCHAR(20) DEFAULT '正常' COMMENT '状态：正常/封禁',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) COMMENT='用户表';
@@ -51,8 +55,26 @@ CREATE TABLE content_like (
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
 ) COMMENT='点赞表';
 
-INSERT INTO category(name) VALUES ('楷书');
-INSERT INTO category(name) VALUES ('行书');
-INSERT INTO category(name) VALUES ('草书');
-INSERT INTO category(name) VALUES ('隶书');
-INSERT INTO category(name) VALUES ('篆书');
+CREATE TABLE product (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    name VARCHAR(100) NOT NULL COMMENT '商品名称',
+    description TEXT COMMENT '商品描述',
+    price DECIMAL(10,2) NOT NULL COMMENT '价格',
+    cover VARCHAR(255) DEFAULT NULL COMMENT '封面图',
+    category VARCHAR(50) DEFAULT NULL COMMENT '商品分类',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+) COMMENT='商品表';
+
+CREATE TABLE orders (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    product_id BIGINT NOT NULL COMMENT '商品ID',
+    price DECIMAL(10,2) NOT NULL COMMENT '订单价格',
+    status VARCHAR(20) DEFAULT '未支付' COMMENT '订单状态',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+) COMMENT='订单表';
+
+INSERT INTO category(name) VALUES ('楷书'),('行书'),('草书'),('隶书'),('篆书');
+
+INSERT INTO user(username, password, nickname, role, status)
+VALUES ('admin', '$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', '管理员', 'admin', '正常');
