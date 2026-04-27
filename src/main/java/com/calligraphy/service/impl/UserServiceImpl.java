@@ -1,6 +1,7 @@
 package com.calligraphy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.calligraphy.dto.RegisterDTO;
 import com.calligraphy.entity.User;
 import com.calligraphy.exception.BusinessException;
 import com.calligraphy.mapper.UserMapper;
@@ -31,35 +32,35 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 注册
+     * 注册（修复版本：使用DTO）
      */
     @Override
-    public void register(User user) {
-        // 1. 参数校验
-        if (user.getUsername() == null || user.getPassword() == null) {
+    public void register(RegisterDTO dto) {
+
+        if (dto.getUsername() == null || dto.getPassword() == null) {
             throw new BusinessException("用户名或密码不能为空");
         }
 
-        // 2. 用户是否存在
         User exist = userMapper.selectOne(
                 new LambdaQueryWrapper<User>()
-                        .eq(User::getUsername, user.getUsername())
+                        .eq(User::getUsername, dto.getUsername())
         );
+
         if (exist != null) {
             throw new BusinessException("用户名已存在");
         }
 
-        // 3. 密码加密
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // 4. 默认字段
-        if (user.getNickname() == null) {
-            user.setNickname(user.getUsername());
-        }
+        user.setNickname(
+                dto.getNickname() == null ? dto.getUsername() : dto.getNickname()
+        );
+
         user.setRole("user");
         user.setStatus("正常");
 
-        // 5. 插入
         userMapper.insert(user);
     }
 
@@ -69,7 +70,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> login(String username, String password) {
 
-        // 1. 查询用户
         User user = userMapper.selectOne(
                 new LambdaQueryWrapper<User>()
                         .eq(User::getUsername, username)
@@ -79,20 +79,16 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("用户不存在");
         }
 
-        // 2. 校验密码
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BusinessException("密码错误");
         }
 
-        // 3. 校验状态（封禁）
         if ("封禁".equals(user.getStatus())) {
             throw new BusinessException("账号已被封禁");
         }
 
-        // 4. 生成 token
         String token = jwtUtil.createToken(user.getId(), user.getUsername());
 
-        // 5. 返回数据
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
         result.put("userId", user.getId());
@@ -106,7 +102,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 获取当前用户信息
+     * 当前用户
      */
     @Override
     public User getCurrentUser() {
@@ -115,7 +111,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 更新用户信息
+     * 修改信息
      */
     @Override
     public void update(User user) {
@@ -134,8 +130,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void updatePassword(String oldPassword, String newPassword) {
-        Long userId = loginUserHelper.getRequiredCurrentUserId();
 
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
         User user = userMapper.selectById(userId);
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
