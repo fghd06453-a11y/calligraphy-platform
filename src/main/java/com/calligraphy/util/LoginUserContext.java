@@ -4,8 +4,6 @@ public final class LoginUserContext {
 
     private static final ThreadLocal<Long> CURRENT_USER_ID = new ThreadLocal<>();
 
-    private LoginUserContext() {
-    }
 
     public static void setCurrentUserId(Long userId) {
         CURRENT_USER_ID.set(userId);

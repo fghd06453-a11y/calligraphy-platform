@@ -1,6 +1,7 @@
 package com.calligraphy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.calligraphy.dto.LoginDTO;
 import com.calligraphy.dto.RegisterDTO;
 import com.calligraphy.dto.UserUpdateDTO;
 import com.calligraphy.entity.User;
@@ -97,11 +98,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Map<String, Object> login(LoginDTO loginDTO) {
-
+//从@Requestbody注解来的参数设置到loginDTO 后判断不能为空，
         if (loginDTO.getUsername() == null || loginDTO.getPassword() == null) {
             throw new BusinessException("用户名或密码不能为空");
         }
-
+//“：：”表示引用，引用user类的GETUSERNAME()方法，直接拿数据库里的username字段
         User user = userMapper.selectOne(
                 new LambdaQueryWrapper<User>()
                         .eq(User::getUsername, loginDTO.getUsername())
@@ -136,26 +137,12 @@ public class UserServiceImpl implements UserService {
     /**
      * 当前用户
      */
-    @Override
-    public User getCurrentUser() {
-        Long userId = loginUserHelper.getRequiredCurrentUserId();
-        return userMapper.selectById(userId);
-    }
+
 
     /**
      * 修改信息
      */
-    @Override
-    public void update(User user) {
-        Long userId = loginUserHelper.getRequiredCurrentUserId();
 
-        User update = new User();
-        update.setId(userId);
-        update.setNickname(user.getNickname());
-        update.setAvatar(user.getAvatar());
-
-        userMapper.updateById(update);
-    }
 
     /**
      * 修改密码

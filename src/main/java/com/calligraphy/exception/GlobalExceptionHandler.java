@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+//@ExceptionHandler注解表示框架检测到UnauthorizedException这种异常类的抛出时，自动进入这个注解对应的方法
+//    这个方法处理返回报错的格式等
     @ExceptionHandler(UnauthorizedException.class)
     public Result<Void> handleUnauthorizedException(UnauthorizedException e) {
         return Result.fail(ResultCodeEnum.UNAUTHORIZED.getCode(), e.getMessage());

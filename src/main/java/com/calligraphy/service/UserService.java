@@ -3,6 +3,7 @@ package com.calligraphy.service;
 import com.calligraphy.dto.LoginDTO;
 import com.calligraphy.dto.RegisterDTO;
 import com.calligraphy.dto.UserUpdateDTO;
+import com.calligraphy.entity.User;
 
 import java.util.Map;
 
@@ -13,4 +14,9 @@ public interface UserService {
     void updateProfile(UserUpdateDTO dto, Long userId);
 
     Map<String, Object> login(LoginDTO loginDTO);
+
+
+
+
+    void updatePassword(String oldPassword, String newPassword);
 }
