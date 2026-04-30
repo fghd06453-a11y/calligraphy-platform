@@ -4,6 +4,7 @@ import com.calligraphy.common.Result;
 import com.calligraphy.dto.LoginDTO;
 import com.calligraphy.dto.RegisterDTO;
 import com.calligraphy.dto.UserUpdateDTO;
+import com.calligraphy.entity.User;
 import com.calligraphy.service.UserService;
 import com.calligraphy.util.LoginUserHelper;
 import jakarta.validation.Valid;
@@ -17,9 +18,11 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final LoginUserHelper loginUserHelper;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, LoginUserHelper loginUserHelper) {
         this.userService = userService;
+        this.loginUserHelper = loginUserHelper;
     }
 
     @PostMapping("/register")
@@ -27,21 +30,32 @@ public class UserController {
         userService.register(registerDTO);
         return Result.success();
     }
-//@RequestBody 注解表示检测到前端传来的JSON数据，然后注入到LoginDTO类里面，同时新建一个该对象，
-//    再将这个对象的数据对应到login方法里面，然后在对应service实现类里运用
-//  @Valid  这个注解用来检验前端传来的参数格式是否为空，长度等格式是否合格，简化service层面代码，不用判断数据是否合法
+
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody @Valid LoginDTO loginDTO) {
         Map<String, Object> data = userService.login(loginDTO);
         return Result.success(data);
     }
 
-    @PostMapping("/update")
-    public Result<Void> update(@RequestBody UserUpdateDTO dto) {
-        LoginUserHelper loginUserHelper = new LoginUserHelper();
+    @GetMapping("/me")
+    public Result<User> me() {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
+        User user = userService.getUserInfo(userId);
+        return Result.success(user);
+    }
+
+    @PutMapping("/profile")
+    public Result<Void> updateProfile(@RequestBody UserUpdateDTO dto) {
         Long userId = loginUserHelper.getRequiredCurrentUserId();
         userService.updateProfile(dto, userId);
         return Result.success();
     }
 
+    // 兼容你原来的前端 /user/update
+    @PostMapping("/update")
+    public Result<Void> update(@RequestBody UserUpdateDTO dto) {
+        Long userId = loginUserHelper.getRequiredCurrentUserId();
+        userService.updateProfile(dto, userId);
+        return Result.success();
+    }
 }

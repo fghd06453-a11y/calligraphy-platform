@@ -15,26 +15,21 @@ public class UploadController {
 
     @PostMapping
     public Result<String> upload(@RequestParam("file") MultipartFile file) {
-
         try {
-            String originalFilename = file.getOriginalFilename();
-            String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String suffix = file.getOriginalFilename()
+                    .substring(file.getOriginalFilename().lastIndexOf("."));
 
             String fileName = UUID.randomUUID() + suffix;
 
             File dir = new File(UPLOAD_DIR);
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
+            if (!dir.exists()) dir.mkdirs();
 
-            File dest = new File(UPLOAD_DIR + fileName);
+            File dest = new File(dir, fileName);
             file.transferTo(dest);
 
-            String url = "http://localhost:8080/upload/" + fileName;
-
-            return Result.success(url);
-
+            return Result.success("http://localhost:8080/upload/" + fileName);
         } catch (Exception e) {
+            e.printStackTrace();
             return Result.fail("上传失败");
         }
     }

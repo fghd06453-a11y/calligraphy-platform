@@ -7,6 +7,7 @@ spring:
     url: ${DB_URL:jdbc:mysql://localhost:3306/calligraphy_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
+
   servlet:
     multipart:
       max-file-size: 200MB
@@ -23,3 +24,7 @@ mybatis-plus:
 jwt:
   secret: ${JWT_SECRET:calligraphy-platform-secret-key-calligraphy-platform-secret-key}
   expiration: ${JWT_EXPIRATION:86400000}
+
+upload:
+  path: ${UPLOAD_PATH:D:/upload/}
+  url-prefix: ${UPLOAD_URL_PREFIX:http://localhost:8080/upload/}

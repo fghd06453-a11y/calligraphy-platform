@@ -1,6 +1,7 @@
 package com.calligraphy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.calligraphy.common.enums.ResultCodeEnum;
 import com.calligraphy.dto.LoginDTO;
 import com.calligraphy.dto.RegisterDTO;
 import com.calligraphy.dto.UserUpdateDTO;
@@ -9,9 +10,9 @@ import com.calligraphy.exception.BusinessException;
 import com.calligraphy.mapper.UserMapper;
 import com.calligraphy.service.UserService;
 import com.calligraphy.util.JwtUtil;
-import com.calligraphy.util.LoginUserHelper;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,103 +22,69 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
-    private final LoginUserHelper loginUserHelper;
+    private final PasswordEncoder passwordEncoder;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    public UserServiceImpl(UserMapper userMapper,
-                           JwtUtil jwtUtil,
-                           LoginUserHelper loginUserHelper) {
+    public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
         this.jwtUtil = jwtUtil;
-        this.loginUserHelper = loginUserHelper;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * 注册（修复版本：使用DTO）
-     */
     @Override
     public void register(RegisterDTO registerDTO) {
-
-        if (registerDTO.getUsername() == null || registerDTO.getPassword() == null) {
-            throw new BusinessException("用户名或密码不能为空");
+        if (registerDTO == null) {
+            throw new BusinessException(ResultCodeEnum.PARAM_ERROR);
         }
 
-        // 查询用户是否存在
-        User exist = userMapper.selectOne(
+        if (!StringUtils.hasText(registerDTO.getUsername()) || !StringUtils.hasText(registerDTO.getPassword())) {
+            throw new BusinessException(ResultCodeEnum.PARAM_ERROR.getCode(), "用户名或密码不能为空");
+        }
+
+        User existUser = userMapper.selectOne(
                 new LambdaQueryWrapper<User>()
                         .eq(User::getUsername, registerDTO.getUsername())
         );
 
-        if (exist != null) {
-            throw new BusinessException("用户名已存在");
+        if (existUser != null) {
+            throw new BusinessException(ResultCodeEnum.USERNAME_EXISTS);
         }
 
-        // 构造用户（保持你原有风格）
         User user = new User();
         user.setUsername(registerDTO.getUsername());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+        user.setNickname(registerDTO.getNickname());
 
-        // 保持你原项目逻辑
-        user.setNickname(
-                registerDTO.getNickname() == null
-                        ? registerDTO.getUsername()
-                        : registerDTO.getNickname()
-        );
-
-        // ⚠️ 如果你数据库还没改，这两行先注释
-        // user.setRole("user");
-        // user.setStatus("正常");
-
-        userMapper.insert(user);
-    }
-
-    @Override
-    public void updateProfile(UserUpdateDTO dto, Long userId) {
-
-        if (userId == null) {
-            throw new BusinessException("未登录");
+        if (StringUtils.hasText(registerDTO.getAvatar())) {
+            user.setAvatar(registerDTO.getAvatar());
         }
 
-        User user = userMapper.selectById(userId);
-
-        if (user == null) {
-            throw new BusinessException("用户不存在");
+        int rows = userMapper.insert(user);
+        if (rows <= 0) {
+            throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR.getCode(), "注册失败");
         }
-
-        // 更新字段（按你现有字段来）
-        user.setNickname(dto.getNickname());
-        user.setAvatar(dto.getAvatar());
-
-        userMapper.updateById(user);
     }
 
-
-    /**
-     * 登录
-     */
     @Override
     public Map<String, Object> login(LoginDTO loginDTO) {
-//从@Requestbody注解来的参数设置到loginDTO 后判断不能为空，
-        if (loginDTO.getUsername() == null || loginDTO.getPassword() == null) {
-            throw new BusinessException("用户名或密码不能为空");
+        if (loginDTO == null) {
+            throw new BusinessException(ResultCodeEnum.PARAM_ERROR);
         }
-//“：：”表示引用，引用user类的GETUSERNAME()方法，直接拿数据库里的username字段
+
+        if (!StringUtils.hasText(loginDTO.getUsername()) || !StringUtils.hasText(loginDTO.getPassword())) {
+            throw new BusinessException(ResultCodeEnum.PARAM_ERROR.getCode(), "用户名或密码不能为空");
+        }
+
         User user = userMapper.selectOne(
                 new LambdaQueryWrapper<User>()
                         .eq(User::getUsername, loginDTO.getUsername())
         );
 
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(ResultCodeEnum.USER_NOT_FOUND);
         }
 
         if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            throw new BusinessException("密码错误");
-        }
-
-        if ("封禁".equals(user.getStatus())) {
-            throw new BusinessException("账号已被封禁");
+            throw new BusinessException(ResultCodeEnum.PASSWORD_ERROR);
         }
 
         String token = jwtUtil.createToken(user.getId(), user.getUsername());
@@ -128,36 +95,46 @@ public class UserServiceImpl implements UserService {
         result.put("username", user.getUsername());
         result.put("nickname", user.getNickname());
         result.put("avatar", user.getAvatar());
-        result.put("role", user.getRole());
-        result.put("status", user.getStatus());
 
         return result;
     }
 
-    /**
-     * 当前用户
-     */
-
-
-    /**
-     * 修改信息
-     */
-
-
-    /**
-     * 修改密码
-     */
     @Override
-    public void updatePassword(String oldPassword, String newPassword) {
-
-        Long userId = loginUserHelper.getRequiredCurrentUserId();
+    public User getUserInfo(Long userId) {
         User user = userMapper.selectById(userId);
 
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BusinessException("原密码错误");
+        if (user == null) {
+            throw new BusinessException("用户不存在");
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userMapper.updateById(user);
+        user.setPassword(null);
+        return user;
+    }
+
+    @Override
+    public void updateProfile(UserUpdateDTO dto, Long userId) {
+        if (dto == null) {
+            throw new BusinessException(ResultCodeEnum.PARAM_ERROR);
+        }
+
+        User user = userMapper.selectById(userId);
+
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+
+        if (dto.getNickname() != null) {
+            user.setNickname(dto.getNickname());
+        }
+
+        if (dto.getAvatar() != null) {
+            user.setAvatar(dto.getAvatar());
+        }
+
+        int rows = userMapper.updateById(user);
+
+        if (rows <= 0) {
+            throw new BusinessException(ResultCodeEnum.SYSTEM_ERROR.getCode(), "保存资料失败");
+        }
     }
 }

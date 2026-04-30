@@ -11,12 +11,13 @@ public interface UserService {
 
     void register(RegisterDTO registerDTO);
 
-    void updateProfile(UserUpdateDTO dto, Long userId);
-
     Map<String, Object> login(LoginDTO loginDTO);
 
+    User getUserInfo(Long userId);
 
+    void updateProfile(UserUpdateDTO dto, Long userId);
 
+    User getById(Long userId);
 
-    void updatePassword(String oldPassword, String newPassword);
+    void updateById(User update);
 }
