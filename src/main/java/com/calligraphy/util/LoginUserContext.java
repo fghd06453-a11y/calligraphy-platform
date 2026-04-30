@@ -1,19 +1,18 @@
 package com.calligraphy.util;
 
-public final class LoginUserContext {
+public class LoginUserContext {
 
-    private static final ThreadLocal<Long> CURRENT_USER_ID = new ThreadLocal<>();
-
+    private static final ThreadLocal<Long> USER_ID_HOLDER = new ThreadLocal<>();
 
     public static void setCurrentUserId(Long userId) {
-        CURRENT_USER_ID.set(userId);
+        USER_ID_HOLDER.set(userId);
     }
 
     public static Long getCurrentUserId() {
-        return CURRENT_USER_ID.get();
+        return USER_ID_HOLDER.get();
     }
 
     public static void clear() {
-        CURRENT_USER_ID.remove();
+        USER_ID_HOLDER.remove();
     }
 }

@@ -7,6 +7,10 @@ spring:
     url: ${DB_URL:jdbc:mysql://localhost:3306/calligraphy_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
 
 mybatis-plus:
   configuration:

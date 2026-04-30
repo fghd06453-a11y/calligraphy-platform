@@ -26,6 +26,7 @@ public class JwtInterceptor implements HandlerInterceptor {
                              Object handler) {
 
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
+
         if (authHeader == null || authHeader.isBlank()) {
             throw new UnauthorizedException("请求未携带 token");
         }
@@ -35,15 +36,13 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
 
         String token = authHeader.substring(BEARER_PREFIX.length()).trim();
-        if (token.isEmpty()) {
-            throw new UnauthorizedException("token 不能为空");
-        }
 
         if (!jwtUtil.isTokenValid(token)) {
             throw new UnauthorizedException("token 无效或已过期");
         }
 
         Long userId = jwtUtil.getUserId(token);
+
         if (userId == null) {
             throw new UnauthorizedException("无法解析当前登录用户");
         }
