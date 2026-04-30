@@ -33,15 +33,13 @@ public class UserController {
 
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody @Valid LoginDTO loginDTO) {
-        Map<String, Object> data = userService.login(loginDTO);
-        return Result.success(data);
+        return Result.success(userService.login(loginDTO));
     }
 
     @GetMapping("/me")
     public Result<User> me() {
         Long userId = loginUserHelper.getRequiredCurrentUserId();
-        User user = userService.getUserInfo(userId);
-        return Result.success(user);
+        return Result.success(userService.getUserInfo(userId));
     }
 
     @PutMapping("/profile")
@@ -51,7 +49,6 @@ public class UserController {
         return Result.success();
     }
 
-    // 兼容你原来的前端 /user/update
     @PostMapping("/update")
     public Result<Void> update(@RequestBody UserUpdateDTO dto) {
         Long userId = loginUserHelper.getRequiredCurrentUserId();
