@@ -25,13 +25,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/user/login",
                         "/api/user/register",
+
                         "/api/category/list",
+
                         "/api/content/page",
                         "/api/content/detail/**",
+
                         "/api/comment/list/**",
+
                         "/api/product/list",
-                        "/api/product/**",
-                        "/api/upload",
+                        "/api/product/*",
+
                         "/upload/**",
                         "/error",
                         "/favicon.ico"
