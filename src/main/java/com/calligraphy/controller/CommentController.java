@@ -29,13 +29,6 @@ public class CommentController {
         return Result.success();
     }
 
-    @PostMapping("/add")
-    public Result<Void> add(@Valid @RequestBody CommentDTO dto) {
-        Long userId = loginUserHelper.getRequiredCurrentUserId();
-        commentService.publish(dto, userId);
-        return Result.success();
-    }
-
     @GetMapping("/list/{contentId}")
     public Result<List<CommentVO>> list(@PathVariable Long contentId) {
         return Result.success(commentService.listByContentId(contentId));

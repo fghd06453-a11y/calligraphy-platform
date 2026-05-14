@@ -3,67 +3,69 @@ package com.calligraphy.controller;
 import com.calligraphy.common.Result;
 import com.calligraphy.entity.Order;
 import com.calligraphy.entity.Product;
-import com.calligraphy.mapper.UserMapper;
-import com.calligraphy.service.OrderService;
-import com.calligraphy.service.ProductService;
+import com.calligraphy.service.AdminService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin
 public class AdminController {
 
-    private final UserMapper userMapper;
-    private final ProductService productService;
-    private final OrderService orderService;
+    private final AdminService adminService;
 
-    public AdminController(UserMapper userMapper,
-                           ProductService productService,
-                           OrderService orderService) {
-        this.userMapper = userMapper;
-        this.productService = productService;
-        this.orderService = orderService;
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
     }
 
     @GetMapping("/users")
     public Result users() {
-        return Result.success(userMapper.selectList(null));
+        return Result.success(adminService.listUsers());
     }
 
     @PostMapping("/user/ban/{id}")
     public Result banUser(@PathVariable Long id) {
-        var user = userMapper.selectById(id);
-        if (user == null) return Result.fail("用户不存在");
-        user.setStatus("封禁");
-        userMapper.updateById(user);
+        adminService.banUser(id);
         return Result.success();
     }
 
     @GetMapping("/products")
     public Result products() {
-        return Result.success(productService.list());
+        return Result.success(adminService.listProducts());
     }
 
     @PostMapping("/product/add")
     public Result addProduct(@RequestBody Product product) {
-        productService.add(product);
+        adminService.addProduct(product);
         return Result.success();
     }
 
     @DeleteMapping("/product/delete/{id}")
     public Result deleteProduct(@PathVariable Long id) {
-        productService.delete(id);
+        adminService.deleteProduct(id);
         return Result.success();
     }
 
     @GetMapping("/orders")
     public Result orders() {
-        return Result.success(orderService.list());
+        return Result.success(adminService.listOrders());
     }
 
     @PostMapping("/order/update")
     public Result updateOrder(@RequestBody Order order) {
-        orderService.update(order);
+        adminService.updateOrder(order);
+        return Result.success();
+    }
+
+    @PostMapping("/user/role/{id}")
+    public Result setUserRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        adminService.setUserRole(id, body.get("role"));
+        return Result.success();
+    }
+
+    @PostMapping("/user/reset-password/{id}")
+    public Result resetUserPassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        adminService.resetUserPassword(id, body.get("password"));
         return Result.success();
     }
 }

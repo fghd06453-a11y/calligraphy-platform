@@ -5,7 +5,7 @@ import java.util.List;
 public class PageResult<T> {
 
     private Long total;
-    private List<T> records;
+    private List<T> records;//List<T>表示任意类型列表
 
     public PageResult() {
     }

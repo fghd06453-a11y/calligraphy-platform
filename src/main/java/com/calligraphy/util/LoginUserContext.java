@@ -3,6 +3,7 @@ package com.calligraphy.util;
 public class LoginUserContext {
 
     private static final ThreadLocal<Long> USER_ID_HOLDER = new ThreadLocal<>();
+    private static final ThreadLocal<String> ROLE_HOLDER = new ThreadLocal<>();
 
     public static void setCurrentUserId(Long userId) {
         USER_ID_HOLDER.set(userId);
@@ -12,7 +13,16 @@ public class LoginUserContext {
         return USER_ID_HOLDER.get();
     }
 
+    public static void setCurrentRole(String role) {
+        ROLE_HOLDER.set(role);
+    }
+
+    public static String getCurrentRole() {
+        return ROLE_HOLDER.get();
+    }
+
     public static void clear() {
         USER_ID_HOLDER.remove();
+        ROLE_HOLDER.remove();
     }
 }

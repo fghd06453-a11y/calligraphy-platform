@@ -43,14 +43,7 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public Result<Void> updateProfile(@RequestBody UserUpdateDTO dto) {
-        Long userId = loginUserHelper.getRequiredCurrentUserId();
-        userService.updateProfile(dto, userId);
-        return Result.success();
-    }
-
-    @PostMapping("/update")
-    public Result<Void> update(@RequestBody UserUpdateDTO dto) {
+    public Result<Void> updateProfile(@RequestBody @Valid UserUpdateDTO dto) {
         Long userId = loginUserHelper.getRequiredCurrentUserId();
         userService.updateProfile(dto, userId);
         return Result.success();

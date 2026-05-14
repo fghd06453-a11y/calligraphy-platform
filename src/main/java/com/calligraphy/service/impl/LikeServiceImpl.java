@@ -1,8 +1,9 @@
 package com.calligraphy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.calligraphy.entity.Content;
+import com.calligraphy.common.enums.ResultCodeEnum;
 import com.calligraphy.entity.ContentLike;
+import com.calligraphy.exception.BusinessException;
 import com.calligraphy.mapper.ContentLikeMapper;
 import com.calligraphy.mapper.ContentMapper;
 import com.calligraphy.service.LikeService;
@@ -23,9 +24,8 @@ public class LikeServiceImpl implements LikeService {
     @Override
     @Transactional
     public boolean toggleLike(Long contentId, Long userId) {
-        Content content = contentMapper.selectById(contentId);
-        if (content == null) {
-            throw new RuntimeException("内容不存在");
+        if (contentMapper.selectById(contentId) == null) {
+            throw new BusinessException(ResultCodeEnum.CONTENT_NOT_FOUND);
         }
 
         LambdaQueryWrapper<ContentLike> wrapper = new LambdaQueryWrapper<>();
@@ -34,12 +34,9 @@ public class LikeServiceImpl implements LikeService {
 
         ContentLike existing = contentLikeMapper.selectOne(wrapper);
 
-        int currentLikeCount = content.getLikeCount() == null ? 0 : content.getLikeCount();
-
         if (existing != null) {
             contentLikeMapper.deleteById(existing.getId());
-            content.setLikeCount(Math.max(0, currentLikeCount - 1));
-            contentMapper.updateById(content);
+            contentMapper.decrementLikeCount(contentId);
             return false;
         }
 
@@ -48,8 +45,7 @@ public class LikeServiceImpl implements LikeService {
         like.setUserId(userId);
         contentLikeMapper.insert(like);
 
-        content.setLikeCount(currentLikeCount + 1);
-        contentMapper.updateById(content);
+        contentMapper.incrementLikeCount(contentId);
         return true;
     }
 }

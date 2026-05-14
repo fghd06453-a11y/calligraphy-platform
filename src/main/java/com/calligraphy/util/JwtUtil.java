@@ -31,10 +31,11 @@ public class JwtUtil {
         this.expirationTime = expiration;
     }
 
-    public String createToken(Long userId, String username) {
+    public String createToken(Long userId, String username, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
+        claims.put("role", role);
 
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expirationTime);
@@ -80,5 +81,10 @@ public class JwtUtil {
     public String getUsername(String token) {
         Claims claims = parseToken(token);
         return String.valueOf(claims.get("username"));
+    }
+
+    public String getRole(String token) {
+        Claims claims = parseToken(token);
+        return String.valueOf(claims.get("role"));
     }
 }

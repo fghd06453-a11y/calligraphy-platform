@@ -40,11 +40,6 @@ public class OrderController {
         return Result.success(orderService.myOrders(userId));
     }
 
-    @GetMapping("/my/{userId}")
-    public Result<List<Order>> myByUserId(@PathVariable Long userId) {
-        return Result.success(orderService.myOrders(userId));
-    }
-
     @GetMapping("/list")
     public Result<List<Order>> list() {
         return Result.success(orderService.list());

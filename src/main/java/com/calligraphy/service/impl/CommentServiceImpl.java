@@ -5,13 +5,15 @@ import com.calligraphy.dto.CommentDTO;
 import com.calligraphy.dto.CommentVO;
 import com.calligraphy.entity.Comment;
 import com.calligraphy.entity.User;
+import com.calligraphy.exception.BusinessException;
 import com.calligraphy.mapper.CommentMapper;
 import com.calligraphy.mapper.UserMapper;
 import com.calligraphy.service.CommentService;
+import com.calligraphy.util.LoginUserContext;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -40,9 +42,19 @@ public class CommentServiceImpl implements CommentService {
                 .orderByDesc(Comment::getCreateTime);
 
         List<Comment> comments = commentMapper.selectList(wrapper);
-        List<CommentVO> result = new ArrayList<>();
 
-        for (Comment c : comments) {
+        if (comments.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Batch query users
+        Set<Long> userIds = comments.stream()
+                .map(Comment::getUserId)
+                .collect(Collectors.toSet());
+        Map<Long, User> userMap = userMapper.selectBatchIds(userIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
+
+        return comments.stream().map(c -> {
             CommentVO vo = new CommentVO();
             vo.setId(c.getId());
             vo.setContentId(c.getContentId());
@@ -50,24 +62,23 @@ public class CommentServiceImpl implements CommentService {
             vo.setContent(c.getContent());
             vo.setCreateTime(c.getCreateTime());
 
-            User user = userMapper.selectById(c.getUserId());
+            User user = userMap.get(c.getUserId());
             if (user != null) {
                 vo.setNickname(user.getNickname());
                 vo.setAvatar(user.getAvatar());
             }
-            result.add(vo);
-        }
-        return result;
+            return vo;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public void delete(Long id, Long userId) {
         Comment comment = commentMapper.selectById(id);
         if (comment == null) {
-            throw new RuntimeException("评论不存在");
+            throw new BusinessException("评论不存在");
         }
-        if (!comment.getUserId().equals(userId)) {
-            throw new RuntimeException("无权删除");
+        if (!comment.getUserId().equals(userId) && !"admin".equals(LoginUserContext.getCurrentRole())) {
+            throw new BusinessException("无权删除");
         }
         commentMapper.deleteById(id);
     }

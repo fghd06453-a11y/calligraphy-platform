@@ -8,10 +8,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+@RestControllerAdvice  //给类打标签，表示这个类是全局异常处理类，专门拦截所有controller抛出异常
 public class GlobalExceptionHandler {
 //@ExceptionHandler注解表示框架检测到UnauthorizedException这种异常类的抛出时，自动进入这个注解对应的方法
-//    这个方法处理返回报错的格式等
+//    这个注解写在方法上，指定这个方法专门处理哪种异常
     @ExceptionHandler(UnauthorizedException.class)
     public Result<Void> handleUnauthorizedException(UnauthorizedException e) {
         return Result.fail(ResultCodeEnum.UNAUTHORIZED.getCode(), e.getMessage());

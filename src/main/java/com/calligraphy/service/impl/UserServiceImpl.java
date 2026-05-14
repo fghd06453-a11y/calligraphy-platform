@@ -10,7 +10,7 @@ import com.calligraphy.mapper.UserMapper;
 import com.calligraphy.service.UserService;
 import com.calligraphy.util.JwtUtil;
 import com.calligraphy.util.LoginUserHelper;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,12 +24,13 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final JwtUtil jwtUtil;
     private final LoginUserHelper loginUserHelper;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil, LoginUserHelper loginUserHelper) {
+    public UserServiceImpl(UserMapper userMapper, JwtUtil jwtUtil, LoginUserHelper loginUserHelper, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
         this.jwtUtil = jwtUtil;
         this.loginUserHelper = loginUserHelper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("账号已被封禁");
         }
 
-        String token = jwtUtil.createToken(user.getId(), user.getUsername());
+        String token = jwtUtil.createToken(user.getId(), user.getUsername(), user.getRole());
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);

@@ -47,7 +47,10 @@ public class JwtInterceptor implements HandlerInterceptor {
             throw new UnauthorizedException("无法解析当前登录用户");
         }
 
+        String role = jwtUtil.getRole(token);
+
         LoginUserContext.setCurrentUserId(userId);
+        LoginUserContext.setCurrentRole(role);
         return true;
     }
 
